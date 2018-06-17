@@ -14,28 +14,20 @@
 <script src="game.js"></script>
 <script src="utils.js"></script>
 <script>
-var game;
-
-window.onload = function() {
-	game = init(id$("game"), 8, 9);
-	game.htmlNode.style.width = "500px";
-	game.htmlNode.style.height = "500px";
-
-	move(game);
-	draw(game);
-}
+var
+	root,
+	game;
 	
-function init(root, n, m) {
+window.onload = function() {
 
-	var htmlNode = document.createElement("div");
-	root.appendChild(htmlNode);
+	root = id$("game");
+	game = initGame(root);
+}
 
-	var game = {
-		n,
-		m,
-		htmlNode,
-		data: []
-	};
+function initGame(root, n, m) {
+
+	var game = newGame();
+	createSvgNode(game, root);
 
 	return game;
 }

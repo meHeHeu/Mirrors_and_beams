@@ -1,4 +1,14 @@
-#game div {
-	background-color: red;
+body {
+	background-color: SlateGray;
+}
+
+svg {
+	margin: auto;
+}
+
+svg g {
+	fill: LightSlateGray;
+	opacity: 0.6;
+	stroke: Lavender;
 }
 
