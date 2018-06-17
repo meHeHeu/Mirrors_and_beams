@@ -22,12 +22,14 @@ window.onload = function() {
 
 	root = id$("game");
 	game = initGame(root);
+
+	updateBoard(game);
 }
 
 function initGame(root, n, m) {
 
 	var game = newGame();
-	createSvgNode(game, root);
+	createBoard(game, root);
 
 	return game;
 }

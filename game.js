@@ -34,6 +34,7 @@ function newGame(game) {
 
 	game.n = 9;
 	game.m = 8;
+	game.clip_size = 4;
 
 	game.board = [
 		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {x: 0, y: 1}},
