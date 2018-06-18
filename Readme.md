@@ -2,13 +2,14 @@
 
 ## Game object
 
+Game logic:
 * n - row number
 * m - col number
 * clip\_size - mirror number
-
 * board - list of objects on a level
 * clipboard - list of mirrors (strictly speaking of mirror directions)
 
+Game drawing:
 * svg\_fields - all the svg rects representing board fields
 * svg\_clips\_fields - mirror fields
 
