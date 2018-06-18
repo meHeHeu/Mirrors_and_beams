@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="drawing.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="235.29119"
+     inkscape:cy="672.40833"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="879"
+     inkscape:window-height="789"
+     inkscape:window-x="1920"
+     inkscape:window-y="50"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3346"
+       transform="matrix(0,-1,1,0,119.09973,653.94662)">
+      <path
+         stroke-linejoin="null"
+         stroke-linecap="null"
+         d="m 202.90622,99.02343 c -17.40234,18.58887 -20.64551,79.97168 0,100.14258 20.64551,20.1709 80.20898,-0.0791 80.20898,0.2373 0,0.31641 120.07617,-30.13769 120.07617,-50.07128 0,-19.93359 -120.62987,-50.07129 -120.31347,-50.07129 0.3164,0 -62.56934,-18.82618 -79.97168,-0.23731 z"
+         id="svg_2"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:5;stroke-dasharray:none" />
+      <circle
+         stroke-linejoin="null"
+         stroke-linecap="null"
+         cx="240.16306"
+         cy="150.28125"
+         r="42.286869"
+         id="svg_4"
+         style="fill:none;stroke:#000000;stroke-width:5;stroke-dasharray:none" />
+    </g>
+  </g>
+</svg>
