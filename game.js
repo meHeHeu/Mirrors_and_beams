@@ -56,6 +56,6 @@ function newGame(game) {
 	return game;
 }
 
-function moveGame(game, src, dest) {
+function move(game, src, dest) {
 }
 
