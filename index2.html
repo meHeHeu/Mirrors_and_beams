@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Mirrors and beams</title>
+	<link rel="stylesheet" href="style.css"/>
+</head>
+
+<body>
+<h1>Mirrors and beams</h1>
+<div id="game">
+
+<svg width="500" height="500" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_2" height="80" width="80" y="32" x="47" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_9" height="80" width="80" y="32" x="127" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_10" height="80" width="80" y="32" x="207" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_11" height="80" width="80" y="32" x="287" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_12" height="80" width="80" y="32" x="367" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_18" height="80" width="80" y="112" x="47" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_19" height="80" width="80" y="112" x="127" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_20" height="80" width="80" y="112" x="207" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_21" height="80" width="80" y="112" x="287" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_22" height="80" width="80" y="112" x="367" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_23" height="80" width="80" y="192" x="47" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_24" height="80" width="80" y="192" x="127" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_25" height="80" width="80" y="192" x="207" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_26" height="80" width="80" y="192" x="287" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_27" height="80" width="80" y="192" x="367" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_28" height="80" width="80" y="272" x="47" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_29" height="80" width="80" y="272" x="127" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_30" height="80" width="80" y="272" x="207" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_31" height="80" width="80" y="272" x="287" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_32" height="80" width="80" y="272" x="367" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_33" height="80" width="80" y="352" x="47" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_34" height="80" width="80" y="352" x="127" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_35" height="80" width="80" y="352" x="207" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_36" height="80" width="80" y="352" x="287" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+  <rect id="svg_37" height="80" width="80" y="352" x="367" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+ </g>
+</svg>
+
+</div>
+<script src="drawing.js"></script>
+<script src="game.js"></script>
+<script src="utils.js"></script>
+<script>
+var game;
+
+window.onload = function() {
+	game = init(id$("game"), 8, 9);
+	game.htmlNode.style.width = "500px";
+	game.htmlNode.style.height = "500px";
+
+	move(game);
+	draw(game);
+}
+	
+function init(root, n, m) {
+
+	var htmlNode = document.createElement("div");
+	root.appendChild(htmlNode);
+
+	var game = {
+		n,
+		m,
+		htmlNode,
+		data: []
+	};
+
+	return game;
+}
+</script>
+
+
+</body>
+
+</html>
+
