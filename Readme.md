@@ -11,7 +11,8 @@ Game logic:
 
 Game drawing:
 * svg\_fields - all the svg rects representing board fields
-* svg\_clips\_fields - mirror fields
+* svg\_clips\_fields - svg representing mirror fields
+* svg\_objects - all the svg representing objects
 
 ## Board elements
 * obj - object type, __OEn__
