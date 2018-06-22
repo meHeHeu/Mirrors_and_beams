@@ -7,9 +7,17 @@ svg {
 	margin: auto;
 }
 
-svg g {
+svg .field {
 	fill: LightSlateGray;
 	opacity: 0.6;
 	stroke: Lavender;
+}
+
+.static {
+	cursor: not-allowed;
+}
+
+.draggable {
+	cursor: move;
 }
 

@@ -12,6 +12,7 @@
 </div>
 <script src="drawing.js"></script>
 <script src="game.js"></script>
+<script src="input.js"></script>
 <script src="utils.js"></script>
 <script>
 var
@@ -21,18 +22,44 @@ var
 window.onload = function() {
 
 	root = id$("game");
-	game = initGame(root);
+	game = initGame(root, 45, 45, 5);
 
 	updateBoard(game);
 }
 
-function initGame(root, n, m) {
+function initGame(root, field_width, field_height, stroke_width) {
 
 	var game = newGame();
+
+	game.svg_settings = {
+		field_width,
+		field_height,
+		stroke_width
+	};
+
 	createBoard(game, root);
+	createClipBoard(game, root);
+	createBoardObjects(game);
+
+	for(var g_el of game.svg_fields)
+		for(var field_el of g_el)
+			setAttribs(
+				field_el,
+				["onmousedown", "svgonmousedown(evt)"],
+				["onmouseup", "svgonmouseup(evt)"]
+			);
+	
+	for(var clip_field_el of game.svg_clip_fields) {
+		setAttribs(
+			clip_field_el,
+			["onmousedown", "svgonmousedown(evt)"],
+			["onmouseup", "svgonmouseup(evt)"]
+		);
+	}
 
 	return game;
 }
+
 </script>
 </body>
 

@@ -10,9 +10,15 @@ Game logic:
 * clipboard - list of mirrors (strictly speaking of mirror directions)
 
 Game drawing:
+* svg\_settings
+	* field\_width
+	* field\_height
+	* stroke\_width
+* svg\_board - svg containing board
+* svg\_clip\_board - svg containing clip board
 * svg\_fields - all the svg rects representing board fields
-* svg\_clips\_fields - svg representing mirror fields
-* svg\_objects - all the svg representing objects
+* svg\_clip\_fields - svg representing mirror fields
+* svg\_mirrors - all the svg representing mirrors
 
 ## Board elements
 * obj - object type, __OEn__

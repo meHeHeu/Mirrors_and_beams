@@ -25,6 +25,11 @@ DEn = { // Direction Enum
 	NW: 7
 };
 
+TEn = { // Type of board Enum
+	board: 0,
+	clipb: 1
+};
+
 Object.freeze(OEn);
 Object.freeze(CEn);
 Object.freeze(DEn);
@@ -47,15 +52,29 @@ function newGame(game) {
 	];
 
 	game.clipboard = [
-		DEn.WN,
+		DEn.NW,
 		DEn.SE,
 		DEn.W,
-		DEn.WN
+		DEn.NW
 	];
 
 	return game;
 }
 
 function move(game, src, dest) {
+	if(src.t === TEn.clipb)
+		if(game.clipboard[src.x] != null)
+			if(fieldIsEmpty(game, dest)) {
+				game.board.push({obj: OEn.Mirror, dir: game.clipboard[src.x], pos: {x: dest.x, y: dest.y}});
+				game.clipboard[src.x] = null;
+			}
+}
+
+function fieldIsEmpty(game, dest) {
+	var b = game.board;
+	for(var i=0; i<b.length; ++i)
+		if(b[i].pos.x === dest.x && b[i].pos.y === dest.y)
+			return false;
+	return true;
 }
 
