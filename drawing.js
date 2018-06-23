@@ -73,7 +73,27 @@ function createBoardObjects(game) {
 
 	for(var field of game.board) {
 		var svg_field = game.svg_fields[field.pos.x][field.pos.y];
-		svg_field.setAttribute("fill", field.col);
+		if(field.obj === OEn.Bulb)
+			game.svg_objects.push(createBulb(
+				game.svg_board,
+				getNthSvgPos(stroke_width, field_width, field.pos.y) + 0.1*field_width,
+				getNthSvgPos(stroke_width, field_height, field.pos.x) + 0.1*field_height,
+				field_width * 0.8,
+				field_height * 0.8,
+				field.col,
+				undefined
+			));
+	}
+	for(var field of game.board) {
+		var svg_field = game.svg_fields[field.pos.x][field.pos.y];
+		if(field.obj === OEn.Source)
+			game.svg_objects.push(createSource(
+				game.svg_board,
+				getNthSvgPos(stroke_width, field_width, field.pos.y),
+				getNthSvgPos(stroke_width, field_height, field.pos.x),
+				field_width,
+				field_height,
+			));
 	}
 }
 
@@ -92,18 +112,9 @@ function getNthSvgPos(stroke_width, dim, number) {
 };
 
 function createBulb(root, x, y, width, height, color, state) {
-	const STROKE_COLOR = "#FFFFFF";
+	const STROKE_COLOR = 0xFFFFFF;
 	var bulb = {};
-
-	bulb.svg_ellipse = createSVG("ellipse", root);
-	setAttribs(
-		bulb.svg_ellipse,
-		["x", x],
-		["y", y],
-		["stroke-width", 0.03*minWidthHeight],
-		["stroke", "#FFFFFF"],
-		["fill", STROKE_COLOR]
-	);
+	bulb.svg_ellipse = createFieldEllipse(root, x, y, width, height, STROKE_COLOR, color);
 
 	return bulb;
 }
@@ -127,7 +138,7 @@ function createMirror(root, x, y, width, height) {
 	);
 
 	mirror.svg_ellipse = createSVG("ellipse", root);
-	setAttribs(
+	mirror.svg_ellipse = setAttribs(
 		mirror.svg_ellipse,
 		["cx", x + 0.5*width],
 		["cy", y + 0.4*height],
@@ -139,5 +150,32 @@ function createMirror(root, x, y, width, height) {
 	);
 
 	return mirror;
+}
+
+function createSource(root, x, y, width, height) {
+	const
+		STROKE_COLOR = 0x222222,
+		FILL_COLOR = 0x000000;
+	var source = {};
+
+	source.svg_ellipse = createFieldEllipse(root, x, y, width, height, STROKE_COLOR, FILL_COLOR);
+}
+
+function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color) {
+	const
+		rx = 0.5 * width,
+		ry = 0.5 * height;
+	var ellipse = createSVG("ellipse", root);
+	setAttribs(
+		ellipse,
+		["cx", x + rx],
+		["cy", y + ry],
+		["rx", rx],
+		["ry", ry],
+		["stroke-width", 0.03*Math.min(width, height)],
+		["stroke", stroke_color],
+		["fill", fill_color]
+	);
+	return ellipse;
 }
 

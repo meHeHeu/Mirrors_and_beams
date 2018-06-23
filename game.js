@@ -33,6 +33,7 @@ TEn = { // Type of board Enum
 Object.freeze(OEn);
 Object.freeze(CEn);
 Object.freeze(DEn);
+Object.freeze(TEn);
 
 function newGame(game) {
 	var game = {};
