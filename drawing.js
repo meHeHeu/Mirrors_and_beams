@@ -59,7 +59,7 @@ function createClipBoard(game, root) {
 		);
 		
 		game.svg_clip_fields.push(rect_el);
-		game.svg_mirrors.push(createMirror(game.svg_clip_board, pos.x, pos.y, field_width, field_height));
+		game.svg_mirrors.push(createMirror(game.svg_clip_board, pos.x, pos.y, field_width, field_height, game.clipboard[i]));
 	}
 }
 
@@ -119,7 +119,7 @@ function createBulb(root, x, y, width, height, color, state) {
 	return bulb;
 }
 
-function createMirror(root, x, y, width, height) {
+function createMirror(root, x, y, width, height, rotation) {
 	const
 		GLASS_COLOR = "#AAD0FF",
 		MIRROR_COLOR = "#774444";
@@ -132,6 +132,7 @@ function createMirror(root, x, y, width, height) {
 		mirror.svg_rect,
 		["x", x],
 		["y", y + 0.25*height],
+		["transform", "rotate("+rotation+" "+(0.5*width+x)+" "+(0.5*height+y)+")"],
 		["stroke-width", 0.03*minWidthHeight],
 		["stroke", "#000000"],
 		["fill", MIRROR_COLOR]
@@ -144,6 +145,7 @@ function createMirror(root, x, y, width, height) {
 		["cy", y + 0.4*height],
 		["rx", 0.45*width],
 		["ry", 0.12*height],
+		["transform", "rotate("+rotation+" "+(0.5*width+x)+" "+(0.5*height+y)+")"],
 		["stroke-width", 0.03*minWidthHeight],
 		["stroke", "#000000"],
 		["fill", GLASS_COLOR]

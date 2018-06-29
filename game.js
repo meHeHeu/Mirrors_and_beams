@@ -16,13 +16,13 @@ CEn = { // Color Enum
 
 DEn = { // Direction Enum
 	N:  0,
-	NE: 1,
-	E:  2,
-	SE: 3,
-	S:  4,
-	SW: 5,
-	W:  6,
-	NW: 7
+	NE: 45,
+	E:  90,
+	SE: 135,
+	S:  180,
+	SW: 225,
+	W:  270,
+	NW: 305
 };
 
 TEn = { // Type of board Enum
