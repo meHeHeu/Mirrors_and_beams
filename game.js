@@ -1,3 +1,8 @@
+(function(g, undefined) {
+
+
+// GLOBAL
+
 OEn = { // Object Enum
 	Bulb:   0,
 	Mirror: 1,
@@ -35,14 +40,27 @@ Object.freeze(CEn);
 Object.freeze(DEn);
 Object.freeze(TEn);
 
-function newGame(game) {
-	var game = {};
 
-	game.n = 9;
-	game.m = 8;
-	game.clip_size = 4;
+// PRIVATE
 
-	game.board = [
+function fieldIsEmpty(game, dest) {
+	var b = game.board;
+	for(var i=0; i<b.length; ++i)
+		if(b[i].pos.x === dest.x && b[i].pos.y === dest.y)
+			return false;
+	return true;
+}
+
+
+// PUBLIC
+
+g.newGame = function() {
+
+	g.n = 9;
+	g.m = 8;
+	g.clipsize = 4;
+
+	g.board = [
 		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {x: 0, y: 1}},
 		{obj: OEn.Source, col: CEn.G, dir: DEn.SE, pos: {x: 2, y: 0}},
 		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {x: 4, y: 0}},
@@ -52,30 +70,22 @@ function newGame(game) {
 		{obj: OEn.Bulb  , col: CEn.Y, pos: {x: 6, y: 5}},
 	];
 
-	game.clipboard = [
+	g.clipboard = [
 		DEn.NW,
 		DEn.SE,
 		DEn.W,
 		DEn.NW
 	];
-
-	return game;
 }
 
-function move(game, src, dest) {
+g.move = function(src, dest) {
 	if(src.t === TEn.clipb)
-		if(game.clipboard[src.x] != null)
-			if(fieldIsEmpty(game, dest)) {
-				game.board.push({obj: OEn.Mirror, dir: game.clipboard[src.x], pos: {x: dest.x, y: dest.y}});
-				game.clipboard[src.x] = null;
+		if(g.clipboard[src.x] != null)
+			if(fieldIsEmpty(g, dest)) {
+				g.board.push({obj: OEn.Mirror, dir: g.clipboard[src.x], pos: {x: dest.x, y: dest.y}});
+				g.clipboard[src.x] = null;
 			}
 }
 
-function fieldIsEmpty(game, dest) {
-	var b = game.board;
-	for(var i=0; i<b.length; ++i)
-		if(b[i].pos.x === dest.x && b[i].pos.y === dest.y)
-			return false;
-	return true;
-}
+}(window.game = window.game || {}));
 

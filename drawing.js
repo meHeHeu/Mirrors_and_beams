@@ -1,183 +1,218 @@
-// PUBLIC
-function createBoard(game, root) {
+(function(d, undefined) {
+
+
+// PRIVATE
+
+var
+	g,
+	root,
+	fwidth,
+	fheight,
+	strokew,
+	fminwh;
+
+function set_params(game, settings) {
+	g = game;
+	root = settings.root;
+	fwidth = settings.field_width;
+	fheight = settings.field_height;
+	strokew = settings.stroke_width;
+
+	fminwh = Math.min(fwidth, fheight);
+}
+
+function getNthSvgPos(dim, number) {
+	return strokew + (dim + strokew) * number;
+};
+
+function createBoard() {
 	const
-		stroke_width = game.svg_settings.stroke_width,
-		field_width = game.svg_settings.field_width,
-		field_height = game.svg_settings.field_height,
-		SVG_WIDTH = getNthSvgPos(stroke_width, field_width, game.m),
-		SVG_HEIGHT = getNthSvgPos(stroke_width, field_height, game.n);
+		BOARD_WIDTH = getNthSvgPos(fwidth, g.m),
+		BOARD_HEIGHT = getNthSvgPos(fheight, g.n);
 
-	game.svg_board = createSVG("svg", root, SVG_WIDTH, SVG_HEIGHT);
-	game.svg_fields = [];
+	d.board = createSVG("svg", root, BOARD_WIDTH, BOARD_HEIGHT);
+	d.fields = [];
 
-	for(var i=0; i<game.n; ++i) {
-		game.svg_fields.push([]);
+	for(var i=0; i<g.n; ++i) {
+		d.fields.push([]);
 
-		for(var j=0; j<game.m; ++j) {
-			var rect_el = createSVG("rect", game.svg_board);
+		for(var j=0; j<g.m; ++j) {
+			var rect_el = createSVG("rect", d.board);
 
 			setAttribs(
 				rect_el,
-				["x", getNthSvgPos(stroke_width, field_width, j)],
-				["y", getNthSvgPos(stroke_width, field_height, i)],
-				["width", field_width],
-				["height", field_height],
-				["stroke-width", stroke_width],
+				["x", getNthSvgPos(fwidth, j)],
+				["y", getNthSvgPos(fheight, i)],
+				["width", fwidth],
+				["height", fheight],
+				["stroke-width", strokew],
 				["class", "field"]
 			);
 
-			game.svg_fields[i].push(rect_el);
+			d.fields[i].push(rect_el);
 		}
 	}
 }
 
-function createClipBoard(game, root) {
+function createClipBoard() {
 	const
-		stroke_width = game.svg_settings.stroke_width,
-		field_width = game.svg_settings.field_width,
-		field_height = game.svg_settings.field_height,
-		SVG_CLIP_WIDTH  = getNthSvgPos(stroke_width, field_width, game.clip_size),
-		SVG_CLIP_HEIGHT = 2 * stroke_width + field_width;
+		CLIP_WIDTH  = getNthSvgPos(fwidth, g.clipsize),
+		CLIP_HEIGHT = 2 * strokew + fwidth;
 
-	game.svg_clip_board = createSVG("svg", root, SVG_CLIP_WIDTH, SVG_CLIP_HEIGHT);
-	game.svg_clip_fields = [],
-	game.svg_mirrors = [];
+	d.clipboard = createSVG("svg", root, CLIP_WIDTH, CLIP_HEIGHT);
+	d.clipfields = [],
+	d.mirrors = [];
 
-	for(var i=0; i<game.clip_size; ++i) {
+	for(var i=0; i<g.clipsize; ++i) {
 		var
-			rect_el = createSVG("rect", game.svg_clip_board),
-			pos = {x: stroke_width + i * (stroke_width + field_width), y: stroke_width};
+			rect_el = createSVG("rect", d.clipboard),
+			pos = {x: getNthSvgPos(fwidth, i), y: strokew};
 
 		setAttribs(
 			rect_el,
 			["x", pos.x],
 			["y", pos.y],
-			["width", field_width],
-			["height", field_height],
-			["stroke-width", stroke_width],
+			["width", fwidth],
+			["height", fheight],
+			["stroke-width", strokew],
 			["class", "field"]
 		);
 		
-		game.svg_clip_fields.push(rect_el);
-		game.svg_mirrors.push(createMirror(game.svg_clip_board, pos.x, pos.y, field_width, field_height, game.clipboard[i]));
+		d.clipfields.push(rect_el);
+		d.mirrors.push(createMirror(d.clipboard, pos.x, pos.y, g.clipboard[i]));
 	}
 }
 
-function createBoardObjects(game) {
-	const
-		stroke_width = game.svg_settings.stroke_width,
-		field_width = game.svg_settings.field_width,
-		field_height = game.svg_settings.field_height;
+function createBoardObjects() {
+	d.objects = [];
 
-	game.svg_objects = [];
-
-	for(var field of game.board) {
-		var svg_field = game.svg_fields[field.pos.x][field.pos.y];
+	for(var field of g.board) {
 		if(field.obj === OEn.Bulb)
-			game.svg_objects.push(createBulb(
-				game.svg_board,
-				getNthSvgPos(stroke_width, field_width, field.pos.y) + 0.1*field_width,
-				getNthSvgPos(stroke_width, field_height, field.pos.x) + 0.1*field_height,
-				field_width * 0.8,
-				field_height * 0.8,
-				field.col,
-				undefined
+			d.objects.push(createBulb(
+				field.pos.x, field.pos.y,
+				field.col, undefined
 			));
-	}
-	for(var field of game.board) {
-		var svg_field = game.svg_fields[field.pos.x][field.pos.y];
 		if(field.obj === OEn.Source)
-			game.svg_objects.push(createSource(
-				game.svg_board,
-				getNthSvgPos(stroke_width, field_width, field.pos.y),
-				getNthSvgPos(stroke_width, field_height, field.pos.x),
-				field_width,
-				field_height,
-			));
+			d.objects.push(createSource(field.pos.x, field.pos.y));
 	}
 }
 
-function updateBoard(game) {
-	var mirror_number = game.clip_size;
-	for(var field of game.board)
+function createBulb(x, y, color, state) {
+	const STROKE_COLOR = "#FFFFFF";
+	var bulb = {};
+
+	bulb.svg_ellipse = createFieldEllipse(
+		getNthSvgPos(fwidth, y) + 0.1*fwidth,
+		getNthSvgPos(fheight, x) + 0.1*fheight,
+		0.8*fwidth, 0.8*fheight,
+		STROKE_COLOR,
+		color
+	);
+	return bulb;
+}
+
+function createSource(x, y) {
+	const
+		STROKE_COLOR = "#222222",
+		FILL_COLOR = "#404040";
+
+	var source = {};
+
+	source.svg_ellipse = createFieldEllipse(
+		getNthSvgPos(fwidth, y),
+		getNthSvgPos(fheight, x),
+		fwidth,
+		fheight,
+		STROKE_COLOR,
+		FILL_COLOR
+	);
+
+	return source;
+}
+
+function createFieldEllipse(x, y, width, height, stroke_color, fill_color) {
+	const
+		RX = 0.5 * width,
+		RY = 0.5 * height;
+
+	var ellipse = createSVG("ellipse", d.board);
+	setAttribs(
+		ellipse,
+		["cx", x + RX],
+		["cy", y + RY],
+		["rx", RX],
+		["ry", RY],
+		["stroke-width", 0.03*fminwh],
+		["stroke", stroke_color],
+		["fill", fill_color]
+	);
+
+	return ellipse;
+}
+
+function createMirror(root, x, y, rotation) {
+	const
+		GLASS_COLOR = "#AAD0FF",
+		MIRROR_COLOR = "#774444",
+		STROKE_COLOR = "#000000";
+	var mirror = {};
+
+	function getRotation(rotation) {
+		return "rotate("+rotation+" "+(0.5*fwidth + x)+" "+(0.5*fheight + y)+")";
+	}
+
+	mirror.rotate = function(rotation) {
+		mirror.frame.setAttribute("transform", getRotation(rotation));
+		mirror.glass.setAttribute("transform", getRotation(rotation));
+	}
+
+	mirror.frame = createSVG("rect", root, fwidth, 0.45*fheight);
+	setAttribs(
+		mirror.frame,
+		["x", x],
+		["y", y + 0.25*fheight],
+		["stroke-width", 0.03*fminwh],
+		["stroke", STROKE_COLOR],
+		["fill", MIRROR_COLOR]
+	);
+
+	mirror.glass = createSVG("ellipse", root);
+	setAttribs(
+		mirror.glass,
+		["cx", x + 0.5*fwidth],
+		["cy", y + 0.4*fheight],
+		["rx", 0.45*fwidth],
+		["ry", 0.12*fheight],
+		["stroke-width", 0.03*fminwh],
+		["stroke", STROKE_COLOR],
+		["fill", GLASS_COLOR]
+	);
+
+	mirror.rotate(rotation);
+
+	return mirror;
+}
+
+
+// PUBLIC
+
+d.init = function(game, settings) {
+	set_params(game, settings);
+
+	createBoard();
+	createClipBoard();
+	createBoardObjects();
+}
+
+d.updateBoard = function() {
+	var mirror_number = g.clipsize;
+	for(var field of g.board)
 		if(field.obj === OEn.Mirror)
-			game.svg_objects[--mirror_number].setAttribute(
+			d.objects[--mirror_number].setAttribute(
 				"transform",
 				"translate("+field.pos.x+" "+field.pos.y+")"
 			);
 }
 
-function getNthSvgPos(stroke_width, dim, number) {
-	return stroke_width + (dim + stroke_width) * number;
-};
-
-function createBulb(root, x, y, width, height, color, state) {
-	const STROKE_COLOR = 0xFFFFFF;
-	var bulb = {};
-	bulb.svg_ellipse = createFieldEllipse(root, x, y, width, height, STROKE_COLOR, color);
-
-	return bulb;
-}
-
-function createMirror(root, x, y, width, height, rotation) {
-	const
-		GLASS_COLOR = "#AAD0FF",
-		MIRROR_COLOR = "#774444";
-	var
-		mirror = {},
-		minWidthHeight = Math.min(width, height);
-
-	mirror.svg_rect = createSVG("rect", root, width, 0.45*height);
-	setAttribs(
-		mirror.svg_rect,
-		["x", x],
-		["y", y + 0.25*height],
-		["transform", "rotate("+rotation+" "+(0.5*width+x)+" "+(0.5*height+y)+")"],
-		["stroke-width", 0.03*minWidthHeight],
-		["stroke", "#000000"],
-		["fill", MIRROR_COLOR]
-	);
-
-	mirror.svg_ellipse = createSVG("ellipse", root);
-	mirror.svg_ellipse = setAttribs(
-		mirror.svg_ellipse,
-		["cx", x + 0.5*width],
-		["cy", y + 0.4*height],
-		["rx", 0.45*width],
-		["ry", 0.12*height],
-		["transform", "rotate("+rotation+" "+(0.5*width+x)+" "+(0.5*height+y)+")"],
-		["stroke-width", 0.03*minWidthHeight],
-		["stroke", "#000000"],
-		["fill", GLASS_COLOR]
-	);
-
-	return mirror;
-}
-
-function createSource(root, x, y, width, height) {
-	const
-		STROKE_COLOR = 0x222222,
-		FILL_COLOR = 0x000000;
-	var source = {};
-
-	source.svg_ellipse = createFieldEllipse(root, x, y, width, height, STROKE_COLOR, FILL_COLOR);
-}
-
-function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color) {
-	const
-		rx = 0.5 * width,
-		ry = 0.5 * height;
-	var ellipse = createSVG("ellipse", root);
-	setAttribs(
-		ellipse,
-		["cx", x + rx],
-		["cy", y + ry],
-		["rx", rx],
-		["ry", ry],
-		["stroke-width", 0.03*Math.min(width, height)],
-		["stroke", stroke_color],
-		["fill", fill_color]
-	);
-	return ellipse;
-}
+}(window.draw = window.draw || {}));
 
