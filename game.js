@@ -43,11 +43,15 @@ Object.freeze(TEn);
 
 // PRIVATE
 
-function fieldIsEmpty(game, dest) {
-	var b = game.board;
-	for(var i=0; i<b.length; ++i)
-		if(b[i].pos.x === dest.x && b[i].pos.y === dest.y)
+function fieldIsEmpty(dest) {
+	var
+		b = g.board,
+		blen = g.board.length;
+
+	for(var i=0; i<blen; ++i)
+		if(b[i].pos.row === dest.row && b[i].pos.col === dest.col)
 			return false;
+
 	return true;
 }
 
@@ -56,18 +60,18 @@ function fieldIsEmpty(game, dest) {
 
 g.newGame = function() {
 
-	g.n = 9;
-	g.m = 8;
+	g.n = 8;
+	g.m = 9;
 	g.clipsize = 4;
 
 	g.board = [
-		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {x: 0, y: 1}},
-		{obj: OEn.Source, col: CEn.G, dir: DEn.SE, pos: {x: 2, y: 0}},
-		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {x: 4, y: 0}},
-		{obj: OEn.Bulb  , col: CEn.Y, pos: {x: 4, y: 2}},
-		{obj: OEn.Bulb  , col: CEn.Y, pos: {x: 2, y: 5}},
-		{obj: OEn.Bulb  , col: CEn.Y, pos: {x: 4, y: 5}},
-		{obj: OEn.Bulb  , col: CEn.Y, pos: {x: 6, y: 5}},
+		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {row: 0, col: 1}},
+		{obj: OEn.Source, col: CEn.G, dir: DEn.SE, pos: {row: 2, col: 0}},
+		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {row: 4, col: 0}},
+		{obj: OEn.Bulb  , col: CEn.Y, pos: {row: 4, col: 2}},
+		{obj: OEn.Bulb  , col: CEn.Y, pos: {row: 2, col: 5}},
+		{obj: OEn.Bulb  , col: CEn.Y, pos: {row: 4, col: 5}},
+		{obj: OEn.Bulb  , col: CEn.Y, pos: {row: 6, col: 5}},
 	];
 
 	g.clipboard = [
@@ -80,10 +84,10 @@ g.newGame = function() {
 
 g.move = function(src, dest) {
 	if(src.t === TEn.clipb)
-		if(g.clipboard[src.x] != null)
-			if(fieldIsEmpty(g, dest)) {
-				g.board.push({obj: OEn.Mirror, dir: g.clipboard[src.x], pos: {x: dest.x, y: dest.y}});
-				g.clipboard[src.x] = null;
+		if(g.clipboard[src.col] != NaN)
+			if(fieldIsEmpty(dest)) {
+				g.board.push({obj: OEn.Mirror, dir: g.clipboard[src.col], pos: {col: dest.col, row: dest.row}});
+				g.clipboard[src.col] = NaN;
 			}
 }
 

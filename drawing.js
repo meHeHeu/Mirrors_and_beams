@@ -25,18 +25,39 @@ function getNthSvgPos(dim, number) {
 	return strokew + (dim + strokew) * number;
 };
 
+function newObject(x, y) {
+	var o = {x, y}; // FIXME: wtf is x and y?
+
+	o.remove = function() {
+		for(var s of this.svg)
+			s.parentElement.removeChild(s);
+	};
+
+	o.rotate = function(rotation) {
+		for(var s of this.svg)
+			s.setAttribute(
+				"transform",
+				"rotate("+rotation+" "+(0.5*fwidth + this.x)+" "+(0.5*fheight + this.y)+")"
+			);
+	};
+
+	o.svg = [];
+
+	return o;
+}
+
 function createBoard() {
 	const
-		BOARD_WIDTH = getNthSvgPos(fwidth, g.m),
-		BOARD_HEIGHT = getNthSvgPos(fheight, g.n);
+		BOARD_WIDTH = getNthSvgPos(fwidth, g.n),
+		BOARD_HEIGHT = getNthSvgPos(fheight, g.m);
 
 	d.board = createSVG("svg", root, BOARD_WIDTH, BOARD_HEIGHT);
 	d.fields = [];
 
-	for(var i=0; i<g.n; ++i) {
+	for(var i=0; i<g.m; ++i) {
 		d.fields.push([]);
 
-		for(var j=0; j<g.m; ++j) {
+		for(var j=0; j<g.n; ++j) {
 			var rect_el = createSVG("rect", d.board);
 
 			setAttribs(
@@ -60,72 +81,73 @@ function createClipBoard() {
 		CLIP_HEIGHT = 2 * strokew + fwidth;
 
 	d.clipboard = createSVG("svg", root, CLIP_WIDTH, CLIP_HEIGHT);
-	d.clipfields = [],
-	d.mirrors = [];
+	d.clipfields = [];
 
 	for(var i=0; i<g.clipsize; ++i) {
-		var
-			rect_el = createSVG("rect", d.clipboard),
-			pos = {x: getNthSvgPos(fwidth, i), y: strokew};
-
+		var rect_el = createSVG("rect", d.clipboard);
 		setAttribs(
 			rect_el,
-			["x", pos.x],
-			["y", pos.y],
+			["x", getNthSvgPos(fwidth, i)],
+			["y", strokew],
 			["width", fwidth],
 			["height", fheight],
 			["stroke-width", strokew],
 			["class", "field"]
 		);
-		
 		d.clipfields.push(rect_el);
-		d.mirrors.push(createMirror(d.clipboard, pos.x, pos.y, g.clipboard[i]));
 	}
 }
 
-function createBoardObjects() {
-	d.objects = [];
+function createObjects() {
+	d.bulbs = [];
+	d.mirrors = [];
+	d.sources = [];
 
 	for(var field of g.board) {
 		if(field.obj === OEn.Bulb)
-			d.objects.push(createBulb(
-				field.pos.x, field.pos.y,
-				field.col, undefined
-			));
-		if(field.obj === OEn.Source)
-			d.objects.push(createSource(field.pos.x, field.pos.y));
+			d.bulbs.push(createBulb(field.pos.row, field.pos.col, field.col, undefined));
+		else if(field.obj === OEn.Source)
+			d.sources.push(createSource(field.pos.row, field.pos.col));
+		else if(field.obj === OEn.Mirror)
+			d.mirrors.push(createMirror(d.board, field.pos.row, field.pos.col, field.dir));
 	}
+
+	for(var i=0; i<g.clipsize; ++i)
+		if(!isNaN(g.clipboard[i]))
+			d.mirrors.push(createMirror(d.clipboard, 0, i, g.clipboard[i]));
 }
 
-function createBulb(x, y, color, state) {
+function createBulb(row, col, color, state) {
 	const STROKE_COLOR = "#FFFFFF";
-	var bulb = {};
 
-	bulb.svg_ellipse = createFieldEllipse(
-		getNthSvgPos(fwidth, y) + 0.1*fwidth,
-		getNthSvgPos(fheight, x) + 0.1*fheight,
+	var bulb = newObject(
+			getNthSvgPos(fwidth, col) + 0.1*fwidth,
+			getNthSvgPos(fheight, row) + 0.1*fheight
+		);
+
+	bulb.svg.push(createFieldEllipse(
+		bulb.x, bulb.y,
 		0.8*fwidth, 0.8*fheight,
 		STROKE_COLOR,
 		color
-	);
+	));
+
 	return bulb;
 }
 
-function createSource(x, y) {
+function createSource(row, col) {
 	const
 		STROKE_COLOR = "#222222",
 		FILL_COLOR = "#404040";
 
-	var source = {};
+	var source = newObject(getNthSvgPos(fwidth, col), getNthSvgPos(fheight, row));
 
-	source.svg_ellipse = createFieldEllipse(
-		getNthSvgPos(fwidth, y),
-		getNthSvgPos(fheight, x),
-		fwidth,
-		fheight,
+	source.svg.push(createFieldEllipse(
+		source.x, source.y,
+		fwidth, fheight,
 		STROKE_COLOR,
 		FILL_COLOR
-	);
+	));
 
 	return source;
 }
@@ -150,37 +172,29 @@ function createFieldEllipse(x, y, width, height, stroke_color, fill_color) {
 	return ellipse;
 }
 
-function createMirror(root, x, y, rotation) {
+function createMirror(root, row, col, rotation) {
 	const
 		GLASS_COLOR = "#AAD0FF",
 		MIRROR_COLOR = "#774444",
 		STROKE_COLOR = "#000000";
-	var mirror = {};
 
-	function getRotation(rotation) {
-		return "rotate("+rotation+" "+(0.5*fwidth + x)+" "+(0.5*fheight + y)+")";
-	}
+	var mirror = newObject(getNthSvgPos(fwidth, col), getNthSvgPos(fheight, row));
 
-	mirror.rotate = function(rotation) {
-		mirror.frame.setAttribute("transform", getRotation(rotation));
-		mirror.glass.setAttribute("transform", getRotation(rotation));
-	}
-
-	mirror.frame = createSVG("rect", root, fwidth, 0.45*fheight);
+	mirror.svg.push(createSVG("rect", root, fwidth, 0.45*fheight));
 	setAttribs(
-		mirror.frame,
-		["x", x],
-		["y", y + 0.25*fheight],
+		mirror.svg[0],
+		["x", mirror.x],
+		["y", mirror.y + 0.25*fheight],
 		["stroke-width", 0.03*fminwh],
 		["stroke", STROKE_COLOR],
 		["fill", MIRROR_COLOR]
 	);
 
-	mirror.glass = createSVG("ellipse", root);
+	mirror.svg.push(createSVG("ellipse", root));
 	setAttribs(
-		mirror.glass,
-		["cx", x + 0.5*fwidth],
-		["cy", y + 0.4*fheight],
+		mirror.svg[1],
+		["cx", mirror.x + 0.5*fwidth],
+		["cy", mirror.y + 0.4*fheight],
 		["rx", 0.45*fwidth],
 		["ry", 0.12*fheight],
 		["stroke-width", 0.03*fminwh],
@@ -201,17 +215,17 @@ d.init = function(game, settings) {
 
 	createBoard();
 	createClipBoard();
-	createBoardObjects();
+	createObjects();
 }
 
-d.updateBoard = function() {
-	var mirror_number = g.clipsize;
-	for(var field of g.board)
-		if(field.obj === OEn.Mirror)
-			d.objects[--mirror_number].setAttribute(
-				"transform",
-				"translate("+field.pos.x+" "+field.pos.y+")"
-			);
+d.update = function() {
+	for(var m of d.mirrors)
+		m.remove();
+	for(var b of d.bulbs)
+		b.remove();
+	for(var s of d.sources)
+		s.remove();
+	createObjects();
 }
 
 }(window.draw = window.draw || {}));

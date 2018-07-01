@@ -8,7 +8,7 @@
 
 <body>
 <h1>Mirrors and beams</h1>
-<div id="game">
+<div id="game_root">
 </div>
 <script src="drawing.js"></script>
 <script src="game.js"></script>
@@ -17,7 +17,7 @@
 <script>
 window.onload = function() {
 	var
-		root = id$("game"),
+		root = id$("game_root"),
 		settings = {
 			root,
 			field_width : 45,
@@ -27,6 +27,7 @@ window.onload = function() {
 
 	game.newGame();
 	draw.init(game, settings);
+	input.init(game, draw);
 
 	for(var row of draw.fields)
 		for(var field of row)
