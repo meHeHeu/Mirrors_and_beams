@@ -5,28 +5,93 @@
 
 var
 	g,
-	root,
-	fwidth,
-	fheight,
-	strokew,
-	fminwh;
+	bwidth,
+	hwidth,
+	fsize,
+	fstrokew,
+	root;
+
+/*
+ * NOTE: this function depend on fsize and fstrokew fields
+ */
+function getNthSvgPos(number) {
+	return fstrokew + (fsize + fstrokew) * number;
+}
 
 function set_params(game, settings) {
 	g = game;
-	root = settings.root;
-	fwidth = settings.field_width;
-	fheight = settings.field_height;
-	strokew = settings.stroke_width;
 
-	fminwh = Math.min(fwidth, fheight);
+	fsize = settings.field_size;
+	fstrokew = settings.field_stroke_width;
+
+	bwidth = getNthSvgPos(g.n);
+	bheight = getNthSvgPos(g.m+1);
+
+	root = createSVG( "svg", settings.root,
+		"width", bwidth,
+		"height", bheight,
+	);
 }
 
-function getNthSvgPos(dim, number) {
-	return strokew + (dim + strokew) * number;
-};
+function createBoard() {
+	d.fields = [];
+
+	for(var i=0; i<g.m; ++i) {
+		d.fields.push([]);
+		for(var j=0; j<g.n; ++j)
+			d.fields[i].push(createSVG("rect", root,
+				"x", getNthSvgPos(j),
+				"y", getNthSvgPos(i),
+				"width", fsize,
+				"height", fsize,
+				"stroke-width", fstrokew,
+				"class", "field"
+			));
+	}
+}
+
+function createClipBoard() {
+	d.fields.push([]);
+	for(var i=0; i<g.clipsize; ++i) {
+		d.fields[g.m].push(createSVG("rect", root,
+			"x", getNthSvgPos(i),
+			"y", getNthSvgPos(g.m),
+			"width", fsize,
+			"height", fsize,
+			"stroke-width", fstrokew,
+			"class", "field"
+		));
+	}
+}
+
+// TODO
+function createField() {
+}
+
+function createObjects() {
+	d.beams = [];
+	d.bulbs = [];
+	d.mirrors = [];
+	d.sources = [];
+
+	for(var field of g.board) {
+		if(field.obj === OEn.Bulb)
+			d.bulbs.push(createBulb(field.pos.row, field.pos.col, field.col, undefined));
+		else if(field.obj === OEn.Source) {
+			d.sources.push(createSource(field.pos.row, field.pos.col));
+			d.beams.push(createBeam(field.pos.row, field.pos.col, field.col));
+		}
+		else if(field.obj === OEn.Mirror)
+			d.mirrors.push(createMirror(field.pos.row, field.pos.col, field.dir));
+	}
+
+	for(var i=0; i<g.clipsize; ++i)
+		if(!isNaN(g.clipboard[i]))
+			d.mirrors.push(createMirror(g.m, i, g.clipboard[i]));
+}
 
 function newObject(x, y) {
-	var o = {x, y}; // FIXME: wtf is x and y?
+	var o = {x, y};
 
 	o.remove = function() {
 		for(var s of this.svg)
@@ -37,7 +102,7 @@ function newObject(x, y) {
 		for(var s of this.svg)
 			s.setAttribute(
 				"transform",
-				"rotate("+rotation+" "+(0.5*fwidth + this.x)+" "+(0.5*fheight + this.y)+")"
+				"rotate("+rotation+" "+(0.5*fsize + this.x)+" "+(0.5*fsize + this.y)+")"
 			);
 	};
 
@@ -46,88 +111,52 @@ function newObject(x, y) {
 	return o;
 }
 
-function createBoard() {
+// FIXME: width and height
+function createFieldEllipse(x, y, width, height, stroke_color, fill_color) {
 	const
-		BOARD_WIDTH = getNthSvgPos(fwidth, g.n),
-		BOARD_HEIGHT = getNthSvgPos(fheight, g.m);
+		RX = 0.5 * width,
+		RY = 0.5 * height;
 
-	d.board = createSVG("svg", root, BOARD_WIDTH, BOARD_HEIGHT);
-	d.fields = [];
+	var ellipse = createSVG("ellipse", root,
+		"cx", x + RX,
+		"cy", y + RY,
+		"rx", RX,
+		"ry", RY,
+		"stroke-width", 0.03*fsize,
+		"stroke", stroke_color,
+		"fill", fill_color
+	);
 
-	for(var i=0; i<g.m; ++i) {
-		d.fields.push([]);
-
-		for(var j=0; j<g.n; ++j) {
-			var rect_el = createSVG("rect", d.board);
-
-			setAttribs(
-				rect_el,
-				["x", getNthSvgPos(fwidth, j)],
-				["y", getNthSvgPos(fheight, i)],
-				["width", fwidth],
-				["height", fheight],
-				["stroke-width", strokew],
-				["class", "field"]
-			);
-
-			d.fields[i].push(rect_el);
-		}
-	}
+	return ellipse;
 }
 
-function createClipBoard() {
+function createBeam(row, col, color) {
 	const
-		CLIP_WIDTH  = getNthSvgPos(fwidth, g.clipsize),
-		CLIP_HEIGHT = 2 * strokew + fwidth;
+		STROKE_WIDTH = 5;
+	var
+		start_pos = {x: getNthSvgPos(col) + fsize/2, y: getNthSvgPos(row) + fsize/2},
+		end_pos = {x: start_pos.x + 400, y: start_pos.y + 400};
 
-	d.clipboard = createSVG("svg", root, CLIP_WIDTH, CLIP_HEIGHT);
-	d.clipfields = [];
+	var beam = createSVG("polyline", root,
+		"points", start_pos.x + "," + start_pos.y + " " + end_pos.x + "," + end_pos.y,
+		"stroke-width", STROKE_WIDTH, 
+		"stroke", color
+	);
 
-	for(var i=0; i<g.clipsize; ++i) {
-		var rect_el = createSVG("rect", d.clipboard);
-		setAttribs(
-			rect_el,
-			["x", getNthSvgPos(fwidth, i)],
-			["y", strokew],
-			["width", fwidth],
-			["height", fheight],
-			["stroke-width", strokew],
-			["class", "field"]
-		);
-		d.clipfields.push(rect_el);
-	}
-}
-
-function createObjects() {
-	d.bulbs = [];
-	d.mirrors = [];
-	d.sources = [];
-
-	for(var field of g.board) {
-		if(field.obj === OEn.Bulb)
-			d.bulbs.push(createBulb(field.pos.row, field.pos.col, field.col, undefined));
-		else if(field.obj === OEn.Source)
-			d.sources.push(createSource(field.pos.row, field.pos.col));
-		else if(field.obj === OEn.Mirror)
-			d.mirrors.push(createMirror(d.board, field.pos.row, field.pos.col, field.dir));
-	}
-
-	for(var i=0; i<g.clipsize; ++i)
-		if(!isNaN(g.clipboard[i]))
-			d.mirrors.push(createMirror(d.clipboard, 0, i, g.clipboard[i]));
+	return beam;
 }
 
 function createBulb(row, col, color, state) {
 	const STROKE_COLOR = "#FFFFFF";
 
 	var bulb = newObject(
-			getNthSvgPos(fwidth, col) + 0.1*fwidth,
-			getNthSvgPos(fheight, row) + 0.1*fheight
+			getNthSvgPos(col) + 0.1*fsize,
+			getNthSvgPos(row) + 0.1*fsize
 		);
 
 	bulb.svg.push(createFieldEllipse(
 		bulb.x, bulb.y,
-		0.8*fwidth, 0.8*fheight,
+		0.8*fsize, 0.8*fsize,
 		STROKE_COLOR,
 		color
 	));
@@ -135,76 +164,54 @@ function createBulb(row, col, color, state) {
 	return bulb;
 }
 
-function createSource(row, col) {
-	const
-		STROKE_COLOR = "#222222",
-		FILL_COLOR = "#404040";
-
-	var source = newObject(getNthSvgPos(fwidth, col), getNthSvgPos(fheight, row));
-
-	source.svg.push(createFieldEllipse(
-		source.x, source.y,
-		fwidth, fheight,
-		STROKE_COLOR,
-		FILL_COLOR
-	));
-
-	return source;
-}
-
-function createFieldEllipse(x, y, width, height, stroke_color, fill_color) {
-	const
-		RX = 0.5 * width,
-		RY = 0.5 * height;
-
-	var ellipse = createSVG("ellipse", d.board);
-	setAttribs(
-		ellipse,
-		["cx", x + RX],
-		["cy", y + RY],
-		["rx", RX],
-		["ry", RY],
-		["stroke-width", 0.03*fminwh],
-		["stroke", stroke_color],
-		["fill", fill_color]
-	);
-
-	return ellipse;
-}
-
-function createMirror(root, row, col, rotation) {
+function createMirror(row, col, rotation) {
 	const
 		GLASS_COLOR = "#AAD0FF",
 		MIRROR_COLOR = "#774444",
 		STROKE_COLOR = "#000000";
 
-	var mirror = newObject(getNthSvgPos(fwidth, col), getNthSvgPos(fheight, row));
+	var mirror = newObject(getNthSvgPos(col), getNthSvgPos(row));
 
-	mirror.svg.push(createSVG("rect", root, fwidth, 0.45*fheight));
-	setAttribs(
-		mirror.svg[0],
-		["x", mirror.x],
-		["y", mirror.y + 0.25*fheight],
-		["stroke-width", 0.03*fminwh],
-		["stroke", STROKE_COLOR],
-		["fill", MIRROR_COLOR]
-	);
+	mirror.svg.push(createSVG("rect", root,
+		"width", fsize,
+		"height", 0.45*fsize,
+		"x", mirror.x,
+		"y", mirror.y + 0.25*fsize,
+		"stroke-width", 0.03*fsize,
+		"stroke", STROKE_COLOR,
+		"fill", MIRROR_COLOR
+	));
 
-	mirror.svg.push(createSVG("ellipse", root));
-	setAttribs(
-		mirror.svg[1],
-		["cx", mirror.x + 0.5*fwidth],
-		["cy", mirror.y + 0.4*fheight],
-		["rx", 0.45*fwidth],
-		["ry", 0.12*fheight],
-		["stroke-width", 0.03*fminwh],
-		["stroke", STROKE_COLOR],
-		["fill", GLASS_COLOR]
-	);
+	mirror.svg.push(createSVG("ellipse", root,
+		"cx", mirror.x + 0.5*fsize,
+		"cy", mirror.y + 0.4*fsize,
+		"rx", 0.45*fsize,
+		"ry", 0.12*fsize,
+		"stroke-width", 0.03*fsize,
+		"stroke", STROKE_COLOR,
+		"fill", GLASS_COLOR
+	));
 
 	mirror.rotate(rotation);
 
 	return mirror;
+}
+
+function createSource(row, col) {
+	const
+		STROKE_COLOR = "#222222",
+		FILL_COLOR = "#404040";
+
+	var source = newObject(getNthSvgPos(col), getNthSvgPos(row));
+
+	source.svg.push(createFieldEllipse(
+		source.x, source.y,
+		fsize, fsize,
+		STROKE_COLOR,
+		FILL_COLOR
+	));
+
+	return source;
 }
 
 

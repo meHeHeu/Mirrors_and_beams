@@ -16,14 +16,11 @@
 <script src="utils.js"></script>
 <script>
 window.onload = function() {
-	var
-		root = id$("game_root"),
-		settings = {
-			root,
-			field_width : 45,
-			field_height: 45,
-			stroke_width: 5
-		};
+	var settings = {
+		root: id$("game_root"),
+		field_size : 45,
+		field_stroke_width: 5
+	};
 
 	game.newGame();
 	draw.init(game, settings);
@@ -32,9 +29,6 @@ window.onload = function() {
 	for(var row of draw.fields)
 		for(var field of row)
 			input.setUpField(field);
-	
-	for(var field of draw.clipfields)
-		input.setUpField(field);
 }
 </script>
 </body>

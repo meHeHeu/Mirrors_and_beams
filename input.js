@@ -31,8 +31,8 @@ i.init = function(game, drawing) {
 i.setUpField = function(field) {
 	setAttribs(
 		field,
-		["onmousedown", "input.svgonmousedown(evt)"],
-		["onmouseup", "input.svgonmouseup(evt)"]
+		"onmousedown", "input.svgonmousedown(evt)",
+		"onmouseup", "input.svgonmouseup(evt)"
 	);
 }
 
