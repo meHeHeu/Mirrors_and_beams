@@ -6,19 +6,7 @@
 var
 	g,
 	d,
-	start_drag_coords;
-
-function getCoords(clicked_element) {
-
-	for(var i=0; i<g.m; ++i)
-		for(var j=0; j<g.n; ++j)
-			if(d.fields[i][j] === clicked_element)
-				return {row: i, col: j, t: TEn.board};
-
-	for(var i=0; i<g.clipsize; ++i)
-		if(d.clipfields[i] === clicked_element)
-			return {col: i, t: TEn.clipb};
-}
+	start_drag_metadata;
 
 
 // PUBLIC
@@ -26,26 +14,29 @@ function getCoords(clicked_element) {
 i.init = function(game, drawing) {
 	g = game;
 	d = drawing;
-}
 
-i.setUpField = function(field) {
-	setAttribs(
-		field,
-		"onmousedown", "input.svgonmousedown(evt)",
-		"onmouseup", "input.svgonmouseup(evt)"
-	);
+	for(var i=0; i<g.m; ++i)
+		for(var j=0; j<g.n; ++j)
+			d.fields[i][j].setAttribute("onmouseup", "input.svgonmouseup(evt)");
+
+	for(var i=0; i<g.clipsize; ++i)
+		d.fields[g.m][i].setAttribute("onmouseup", "input.svgonmouseup(evt)");
+
+	for(var mirror of d.mirrors)
+		for(var s of mirror.svg.childNodes)
+			s.setAttribute("onmousedown", "input.svgonmousedown(evt)");
 }
 
 i.svgonmousedown = function(evt) {
-	start_drag_coords = getCoords(evt.target);
-	console.log("mdown", start_drag_coords);
+	start_drag_metadata = evt.target.metadata;
+	console.log("mdown", start_drag_metadata);
 }
 
 i.svgonmouseup = function(evt) {
-	var end_drag_coords = getCoords(evt.target);
-	console.log("mup", end_drag_coords);
-	g.move(start_drag_coords, end_drag_coords);
-	d.update();
+	var end_drag_pos = evt.target.metadata.pos;
+	g.move(start_drag_metadata.gameObj, end_drag_pos);
+	d.update(start_drag_metadata, end_drag_pos);
+	console.log("mup", end_drag_pos);
 }
 
 }(window.input = window.input || {}));

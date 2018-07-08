@@ -25,10 +25,6 @@ window.onload = function() {
 	game.newGame();
 	draw.init(game, settings);
 	input.init(game, draw);
-
-	for(var row of draw.fields)
-		for(var field of row)
-			input.setUpField(field);
 }
 </script>
 </body>

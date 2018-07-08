@@ -23,6 +23,19 @@ function $$(selector) {
 }
 
 /**
+ * @param numb - number to convert
+ * @return - html color
+ */
+function numbToColor(numb) {
+	var str = numb.toString(16);
+
+	while(str.length<6)
+		str = "0"+str;
+
+	return "#"+str;
+}
+
+/**
  * @param element - element to create
  * @param remaining_arguments - pairs key-attribute to set
  * @return - element with setup values
