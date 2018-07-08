@@ -115,7 +115,8 @@ function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color)
 		"ry", RY,
 		"stroke-width", 0.03*fsize,
 		"stroke", stroke_color,
-		"fill", fill_color
+		"fill", fill_color,
+		"class", "static"
 	);
 
 	return ellipse;
@@ -136,7 +137,8 @@ function createBeam(sourceObj) {
 		beam = createSVG("polyline", root,
 			"points", start_pos.x + "," + start_pos.y + " " + end_pos.x + "," + end_pos.y,
 			"stroke-width", STROKE_WIDTH, 
-			"stroke", numbToColor(sourceObj.col)
+			"stroke", numbToColor(sourceObj.col),
+			"class", "static"
 		);
 
 	return beam;
@@ -177,26 +179,36 @@ function createMirror(mirrorObj) {
 		frame = createSVG("rect", mirror.svg,
 			"width", fsize,
 			"height", 0.45*fsize,
-			"x", mirror.x,
-			"y", mirror.y + 0.25*fsize,
+			"x", 0,
+			"y", 0.25 * fsize,
 			"stroke-width", 0.03*fsize,
 			"stroke", STROKE_COLOR,
-			"fill", MIRROR_COLOR
+			"fill", MIRROR_COLOR,
+			"class", "draggable"
 		),
 		glass = createSVG("ellipse", mirror.svg,
-			"cx", mirror.x + 0.5*fsize,
-			"cy", mirror.y + 0.4*fsize,
+			"cx", 0.5*fsize,
+			"cy", 0.4*fsize,
 			"rx", 0.45*fsize,
 			"ry", 0.12*fsize,
 			"stroke-width", 0.03*fsize,
 			"stroke", STROKE_COLOR,
-			"fill", GLASS_COLOR
+			"fill", GLASS_COLOR,
+			"class", "draggable"
 		);
 
 	frame.metadata = mirror;
 	glass.metadata = mirror;
 
-	mirror.rotate(mirrorObj.dir);
+	mirror.updateDraw = function() {
+		this.svg.setAttribute(
+			"transform",
+			"translate("+getNthSvgPos(this.gameObj.pos.col)+" "+getNthSvgPos(this.gameObj.pos.row)+") " +
+			"rotate("+this.gameObj.dir+" "+(0.5*fsize)+" "+(0.5*fsize)+")"
+		);
+	}
+
+	mirror.updateDraw();
 
 	return mirror;
 }
@@ -242,15 +254,11 @@ d.init = function(game, settings) {
 }
 
 d.update = function(mirror, new_pos) {
-	var
-		old_pos = mirror.gameObj.pos,
-		trans_row = new_pos.row - old_pos.row,
-		trans_col = new_pos.row - old_pos.col;
+	mirror.updateDraw();
+}
 
-	mirror.translate(
-		getNthSvgPos(trans_col),
-		getNthSvgPos(trans_row)
-	);
+d.getRoot = function() {
+	return root;
 }
 
 }(window.draw = window.draw || {}));

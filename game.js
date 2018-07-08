@@ -9,16 +9,6 @@ OEn = { // Object Enum
 	Source: 2
 };
 
-// CEn = { // Color Enum
-// 	R: "#FF0000",
-// 	G: "#00FF00",
-// 	B: "#0000FF",
-// 
-// 	C: "#00FFFF",
-// 	M: "#FF00FF",
-// 	Y: "#FFFF00"
-// };
-
 CEn = { // Color Enum
 	R: 0xff0000,
 	G: 0x00ff00,
@@ -48,16 +38,69 @@ Object.freeze(DEn);
 
 // PRIVATE
 
-function fieldIsEmpty(dest) {
-	var
-		b = g.board,
-		blen = g.board.length;
+DirectionVectors = {
+	N:  {row: -1, col:  0},
+	NE: {row: -1, col:  1},
+	E:  {row:  0, col:  1},
+	SE: {row:  1, col:  1},
+	S:  {row:  1, col:  0},
+	SW: {row:  1, col: -1},
+	W:  {row:  0, col: -1},
+	NW: {row: -1, col: -1},
+	None: {row: 0, col: 0}
+};
 
-	for(var i=0; i<blen; ++i)
-		if(b[i].pos.row === dest.row && b[i].pos.col === dest.col)
-			return false;
+function updateState() {
+	g.beam_points = [];
 
-	return true;
+	for(var obj of g.board)
+		if(obj.obj === OEn.Bulb)
+			obj.state = [];
+
+	for(var obj of g.board)
+		if(obj.obj === OEn.Source) {
+		console.log("aaaa");
+			var
+				vec = DirectionVectors[getKeyByValue(DEn, obj.dir)],
+				index = {row: obj.pos.row+vec.row, col: obj.pos.col+vec.col};
+			while(isInBoundries(index)) {
+				var content = getContents(index);
+				if(content !== undefined)
+					switch(content.obj) {
+					case OEn.Bulb:
+						console.log("bulb");
+						content.state.push(obj.col);
+						console.log(content.state);
+						break;
+					case OEn.Mirror:
+						console.log("mirror");
+						break;
+					case OEn.Source:
+						console.log("source");
+						break;
+					default:
+						break;
+					}
+				console.log(index.row, index.col);
+				index.row += vec.row;
+				index.col += vec.col;
+			}
+		}
+}
+
+function isInBoundries(pos) {
+	return (pos.row >= 0 && pos.row < g.m) && (pos.col >= 0 && pos.col < g.n);
+}
+
+function isOnPosition(obj, pos) {
+	return obj.pos.row === pos.row && obj.pos.col === pos.col;
+}
+
+function getContents(pos) {
+	for(var obj of g.board) {
+		if(isOnPosition(obj, pos))
+			return obj;
+	}
 }
 
 
@@ -83,10 +126,17 @@ g.newGame = function() {
 		{obj: OEn.Mirror,             dir: DEn.W , pos: {row: g.m, col: 2}},
 		{obj: OEn.Mirror,             dir: DEn.NW, pos: {row: g.m, col: 3}},
 	];
+
+	updateState();
 }
 
 g.move = function(src, dest) {
+	for(var field of g.board)
+		if(isOnPosition(field, dest))
+			return;
+
 	src.pos = dest;
+	updateState();
 }
 
 }(window.game = window.game || {}));

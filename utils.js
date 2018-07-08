@@ -23,6 +23,15 @@ function $$(selector) {
 }
 
 /**
+ * @param obj - object to search in
+ * @param val - value to of searched key
+ * @return - key of the value assigned to that key
+ */
+function getKeyByValue(obj, val) {
+	return Object.keys(obj).find(key => obj[key] === val);
+}
+
+/**
  * @param numb - number to convert
  * @return - html color
  */
