@@ -10,13 +10,13 @@ OEn = { // Object Enum
 };
 
 CEn = { // Color Enum
-	R: 0xff0000,
-	G: 0x00ff00,
-	B: 0x0000ff,
+	R: "#FF0000",
+	G: "#00FF00",
+	B: "#0000FF",
 
-	C: 0x00ffff,
-	M: 0xff00ff,
-	Y: 0xffff00
+	C: "#00FFFF",
+	M: "#FF00FF",
+	Y: "#FFFF00"
 };
 
 DEn = { // Direction Enum
@@ -29,6 +29,11 @@ DEn = { // Direction Enum
 	W:  270,
 	NW: 315,
 	None: NaN
+};
+
+GSEn = { // Game State Enum
+	live: 1,
+	over: 2
 };
 
 Object.freeze(OEn);
@@ -85,16 +90,15 @@ function getCurrentVector(angle) {
 	return DirectionVectors[getKeyByValue(DEn, angle)];
 }
 
-// FIXME: naming (eg. obj)
-function updateSources(obj) {
+function updateSources(source) {
 	var
-		currAngle = obj.dir,
+		currAngle = source.dir,
 		currVector = getCurrentVector(currAngle),
 		currField = {
-			row: obj.pos.row + currVector.row,
-			col: obj.pos.col + currVector.col
+			row: source.pos.row + currVector.row,
+			col: source.pos.col + currVector.col
 		};
-	obj.beam_points = [obj.pos];
+	source.beam_points = [source.pos];
 
 calculating_beam:
 	while(isInBoundries(currField)) {
@@ -102,10 +106,10 @@ calculating_beam:
 		if(fcontent !== undefined)
 			switch(fcontent.obj) {
 			case OEn.Bulb:
-				fcontent.state.push(obj.col);
+				fcontent.state.push(source.col);
 				break;
 			case OEn.Mirror:
-				obj.beam_points.push(fcontent.pos);
+				source.beam_points.push(fcontent.pos);
 				currAngle = getCurrentAngle(currAngle, fcontent);
 				if(currAngle === undefined) {
 					currField = undefined;
@@ -114,7 +118,7 @@ calculating_beam:
 				currVector = getCurrentVector(currAngle);
 				break;
 			case OEn.Source:
-				obj.beam_points.push(fcontent.pos);
+				source.beam_points.push(fcontent.pos);
 				currField = undefined;
 				break calculating_beam;
 			default:
@@ -124,21 +128,20 @@ calculating_beam:
 					"invalid_object"
 				);
 			}
-		console.log(currField.row, currField.col);
 		currField.row += currVector.row;
 		currField.col += currVector.col;
 	}
 	if(currField !== undefined)
-		obj.beam_points.push(currField);
+		source.beam_points.push(currField);
 }
 
-function updateBulbs(obj) {
+function updateBulbs(bulb) {
 	var needed_colors;
-	switch(obj.col) {
+	switch(bulb.col) {
 	case CEn.R:
 	case CEn.G:
 	case CEn.B:
-		needed_colors = [obj.col];
+		needed_colors = [bulb.col];
 		break;
 	case CEn.Y:
 		needed_colors = [CEn.R, CEn.G];
@@ -151,12 +154,12 @@ function updateBulbs(obj) {
 		break;
 	default:
 		throw MyException(
-			obj,
+			bulb,
 			"Invalid color found in the game object.",
 			"invalid_color"
 		);
 	}
-	obj.state = isSubset(needed_colors, obj.state);
+	bulb.state = isSubset(needed_colors, bulb.state);
 }
 
 function updateState() {
@@ -169,17 +172,14 @@ function updateState() {
 		if(obj.obj === OEn.Source)
 			updateSources(obj);
 	
-	var won = true;
 	for(var obj of g.board)
 		if(obj.obj === OEn.Bulb) {
 			updateBulbs(obj);
-			if(!obj.state)
-				won = false;
-		}
 
-	if(won)
-		alert("Congratulations! You win!");
-	// TODO: this. Move this to index.html maybe.
+			g.state = GSEn.over;
+			if(!obj.state) // check state of the game
+				g.state = GSEn.live;
+		}
 }
 
 
@@ -191,6 +191,8 @@ g.newGame = function(level) {
 	g.m = level.m;
 	g.clipsize = level.clipsize;
 	g.board = level.board; // FIXME: copy this, not just apply reference
+
+	g.state = GSEn.live;
 
 	updateState();
 }

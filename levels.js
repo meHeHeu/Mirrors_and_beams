@@ -22,8 +22,9 @@ l.testb = {
 	board: [
 	//   object           color       direction    position
 		{obj: OEn.Source, col: CEn.R, dir: DEn.S , pos: {row: 0, col: 1}},
+		{obj: OEn.Source, col: CEn.G, dir: DEn.S , pos: {row: 0, col: 2}},
 		{obj: OEn.Bulb,   col: CEn.R,              pos: {row: 1, col: 1}},
-		{obj: OEn.Bulb,   col: CEn.G,              pos: {row: 1, col: 2}},
+		{obj: OEn.Bulb,   col: CEn.Y,              pos: {row: 1, col: 2}},
 		{obj: OEn.Mirror,             dir: DEn.NE, pos: {row: 2, col: 0}}
 	]
 };

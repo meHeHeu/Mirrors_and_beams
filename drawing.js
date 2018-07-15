@@ -12,7 +12,7 @@ var
 	root;
 
 /*
- * NOTE: this function depend on fsize and fstrokew fields
+ * NOTE: this function depends on fsize and fstrokew fields
  */
 function getNthSvgPos(number) {
 	return fstrokew + (fsize + fstrokew) * number;
@@ -63,47 +63,27 @@ function createField(i, j) {
 }
 
 function createObjects() {
-	for(var field of g.board) {
-		if(field.obj === OEn.Bulb)
-			d.bulbs.push(createBulb(field));
-		else if(field.obj === OEn.Source) {
-			d.sources.push(createSource(field));
-			d.beams.push(createBeam(field));
+	for(var obj of g.board) {
+		if(obj.obj === OEn.Bulb)
+			d.bulbs.push(createBulb(obj));
+		else if(obj.obj === OEn.Source) {
+			d.sources.push(createSource(obj));
+			d.beams.push(createBeam(obj));
 		}
-		else if(field.obj === OEn.Mirror)
-			d.mirrors.push(createMirror(field));
+		else if(obj.obj === OEn.Mirror)
+			d.mirrors.push(createMirror(obj));
 	}
 }
 
-// FIXME: cleanup
 function newObject(x, y, gameObj) {
 	var o = {x, y, gameObj};
 	o.svg = createSVG("g", root);
 	o.remove = function() {
 		svg.parentElement.removeChild(s);
 	};
-	//o.transform = function() {
-	//	this.svg.setAttribute(
-	//		"transform",
-	//		"rotate("+rotation+" "+(0.5*fsize + this.x)+" "+(0.5*fsize + this.y)+")"
-	//		"translate("+getNthSvgPos(this.gameObj.col
-	//}
-	o.rotate = function(rotation) {
-		this.svg.setAttribute(
-			"transform",
-			"rotate("+rotation+" "+(0.5*fsize + this.x)+" "+(0.5*fsize + this.y)+")"
-		);
-	};
-	o.translate = function(x, y) {
-		this.svg.setAttribute(
-			"transform",
-			"translate("+x+" "+y+")"
-		);
-	}
 	return o;
 }
 
-// FIXME: width and height
 function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color) {
 	const
 		RX = 0.5 * width,
@@ -133,7 +113,7 @@ function createBeam(sourceObj) {
 	var beam = createSVG("polyline", root,
 			"points", makePolylinePointList(sourceObj.beam_points),
 			"stroke-width", STROKE_WIDTH, 
-			"stroke", numbToColor(sourceObj.col),
+			"stroke", sourceObj.col,
 			"class", "static"
 	);
 
@@ -159,25 +139,24 @@ function createBulb(bulbObj) {
 	const STROKE_COLOR = "#FFFFFF";
 
 	function getColor() {
-		return numbToColor(bulbObj.state ? bulbObj.col : 0.5 * bulbObj.col);
+		return bulbObj.state ? bulbObj.col : setLumosity(bulbObj.col, 0.5);
 	}
 
 	var bulb = newObject(
-			getNthSvgPos(bulbObj.pos.col) + 0.1*fsize,
-			getNthSvgPos(bulbObj.pos.row) + 0.1*fsize,
-			bulbObj
-		);
-
-	createFieldEllipse(
+		getNthSvgPos(bulbObj.pos.col) + 0.1*fsize,
+		getNthSvgPos(bulbObj.pos.row) + 0.1*fsize,
+		bulbObj
+	);
+	var ellipse = createFieldEllipse(
 		bulb.svg,
 		bulb.x, bulb.y,
 		0.8*fsize, 0.8*fsize,
 		STROKE_COLOR,
 		getColor()
 	);
-
+	
 	bulb.updateDraw = function() {
-		this.svg.setAttribute("fill", getColor);
+		ellipse.setAttribute("fill", getColor());
 	}
 
 	return bulb;
@@ -272,7 +251,7 @@ d.init = function(game, settings) {
 	createObjects();
 }
 
-d.update = function(mirror, new_pos) {
+d.update = function(mirror) {
 	mirror.updateDraw();
 
 	for(var beam of d.beams)
@@ -284,7 +263,7 @@ d.update = function(mirror, new_pos) {
 			d.beams.push(createBeam(obj));
 
 	for(var field of d.bulbs)
-		field.metadata.updateDraw();
+		field.updateDraw();
 }
 
 d.markChosen = function(mirror) {
@@ -295,6 +274,10 @@ d.markChosen = function(mirror) {
 d.unmarkChosen = function(mirror) {
 	var rect = mirror.parentElement.childNodes[0];
 	rect.classList.remove("chosen");
+}
+
+d.makeGameOver = function() {
+	alert("Congratulations! Puzzle solved!");
 }
 
 d.getRoot = function() {

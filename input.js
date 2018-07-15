@@ -15,19 +15,27 @@ i.init = function(game, drawing) {
 	g = game;
 	d = drawing;
 
-	for(var i=0; i<g.m; ++i)
-		for(var j=0; j<g.n; ++j)
-			d.fields[i][j].setAttribute("onmouseup", "input.svgonmouseup(evt)");
-
-	for(var i=0; i<g.clipsize; ++i)
-		d.fields[g.m][i].setAttribute("onmouseup", "input.svgonmouseup(evt)");
+	for(var row of d.fields)
+		for(var field of row)
+			field.setAttribute("onmouseup", "input.svgonmouseup(evt)");
 
 	for(var mirror of d.mirrors)
 		for(var s of mirror.svg.childNodes)
 			s.setAttribute("onmousedown", "input.svgonmousedown(evt)");
 }
 
+i.lockInterface = function() {
+	for(var row of d.fields)
+		for(var field of row)
+			field.removeAttribute("onmouseup");
+
+	for(var mirror of d.mirrors)
+		for(var s of mirror.svg.childNodes)
+			s.removeAttribute("onmousedown");
+}
+
 i.svgonmousedown = function(evt) {
+
 	if(start_drag_element !== undefined)
 		draw.unmarkChosen(start_drag_element);
 
@@ -49,6 +57,11 @@ i.svgonmouseup = function(evt) {
 	d.update(start_metadata, end_drag_pos);
 
 	start_drag_element = undefined;
+
+	if(g.state === GSEn.over) {
+		i.lockInterface();
+		d.makeGameOver();
+	}
 }
 
 }(window.input = window.input || {}));
