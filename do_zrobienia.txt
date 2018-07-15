@@ -1,0 +1,9 @@
+1. Nowe levele (plik levels.js)
+2. Po zrobieniu leveli przetestować solidnie działanie gry
+3. Interfejs witający gracza. Lista poziomów do wyboru
+	rozważyć zmienienie nazwy pliku index.html na np. gameBoard.html i zrobienie powitania w index.html
+3. Zmienić ekran końca gra (w tej chwili wyświetla się alert - to jest strasznie szpetne) (plik drawing.js, funkcja makeGameOver)
+4. Animacja poruszania się lustra (pliki style.css, drawing.js, input.js?)
+5. Animacja podświetlania lustra
+6. Podświetlenie pól (lustra też?) przy przejechaniu myszką (plik input.js)
+

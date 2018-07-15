@@ -36,8 +36,8 @@ svg polyline {
 	stroke-width: 4;
 	stroke-dasharray: 1000;
 	stroke-dashoffset: 1000;
-	-webkit-animation: dash 0.5s linear forwards;
-	animation: dash 0.5s linear forwards;
+	-webkit-animation: dash 2.5s linear forwards;
+	animation: dash 2.5s linear forwards;
 }
 @-webkit-keyframes dash {
 	to {stroke-dashoffset: 0;}
