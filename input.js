@@ -6,7 +6,7 @@
 var
 	g,
 	d,
-	start_drag_metadata;
+	start_drag_element;
 
 
 // PUBLIC
@@ -28,15 +28,27 @@ i.init = function(game, drawing) {
 }
 
 i.svgonmousedown = function(evt) {
-	start_drag_metadata = evt.target.metadata;
-	console.log("mdown", start_drag_metadata);
+	if(start_drag_element !== undefined)
+		draw.unmarkChosen(start_drag_element);
+
+	start_drag_element = evt.target;
+	draw.markChosen(start_drag_element);
 }
 
 i.svgonmouseup = function(evt) {
-	var end_drag_pos = evt.target.metadata.pos;
-	g.move(start_drag_metadata.gameObj, end_drag_pos);
-	d.update(start_drag_metadata, end_drag_pos);
-	console.log("mup", end_drag_pos);
+	if(start_drag_element === undefined)
+		return;
+
+	draw.unmarkChosen(start_drag_element);
+
+	var
+		end_drag_pos = evt.target.metadata.pos,
+		start_metadata = start_drag_element.metadata;
+
+	g.move(start_metadata.gameObj, end_drag_pos);
+	d.update(start_metadata, end_drag_pos);
+
+	start_drag_element = undefined;
 }
 
 }(window.input = window.input || {}));

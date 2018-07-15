@@ -75,6 +75,7 @@ function createObjects() {
 	}
 }
 
+// FIXME: cleanup
 function newObject(x, y, gameObj) {
 	var o = {x, y, gameObj};
 	o.svg = createSVG("g", root);
@@ -125,27 +126,41 @@ function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color)
 function createBeam(sourceObj) {
 	const
 		STROKE_WIDTH = 5;
-	var
-		start_pos = {
-			x: getNthSvgPos(sourceObj.pos.col) + fsize/2,
-			y: getNthSvgPos(sourceObj.pos.row) + fsize/2
-		},
-		end_pos = {
-			x: start_pos.x + 400,
-			y: start_pos.y + 400
-		},
-		beam = createSVG("polyline", root,
-			"points", start_pos.x + "," + start_pos.y + " " + end_pos.x + "," + end_pos.y,
+
+	if(sourceObj.beam_points.length < 2)
+		return undefined;
+
+	var beam = createSVG("polyline", root,
+			"points", makePolylinePointList(sourceObj.beam_points),
 			"stroke-width", STROKE_WIDTH, 
 			"stroke", numbToColor(sourceObj.col),
 			"class", "static"
-		);
+	);
 
 	return beam;
 }
 
+function makePolylinePointList(plist) {
+	var result = "";
+
+	for(var point of plist) {
+		var
+			half_fsize = fsize / 2,
+			x = getNthSvgPos(point.col) + half_fsize,
+			y = getNthSvgPos(point.row) + half_fsize;
+
+		result += x + "," + y + " ";
+	}
+
+	return result;
+}
+
 function createBulb(bulbObj) {
 	const STROKE_COLOR = "#FFFFFF";
+
+	function getColor() {
+		return numbToColor(bulbObj.state ? bulbObj.col : 0.5 * bulbObj.col);
+	}
 
 	var bulb = newObject(
 			getNthSvgPos(bulbObj.pos.col) + 0.1*fsize,
@@ -158,8 +173,12 @@ function createBulb(bulbObj) {
 		bulb.x, bulb.y,
 		0.8*fsize, 0.8*fsize,
 		STROKE_COLOR,
-		numbToColor(bulbObj.col)
+		getColor()
 	);
+
+	bulb.updateDraw = function() {
+		this.svg.setAttribute("fill", getColor);
+	}
 
 	return bulb;
 }
@@ -255,6 +274,27 @@ d.init = function(game, settings) {
 
 d.update = function(mirror, new_pos) {
 	mirror.updateDraw();
+
+	for(var beam of d.beams)
+		root.removeChild(beam);
+	
+	d.beams = [];
+	for(var obj of g.board)
+		if(obj.obj === OEn.Source)
+			d.beams.push(createBeam(obj));
+
+	for(var field of d.bulbs)
+		field.metadata.updateDraw();
+}
+
+d.markChosen = function(mirror) {
+	var rect = mirror.parentElement.childNodes[0];
+	rect.classList.add("chosen");
+}
+
+d.unmarkChosen = function(mirror) {
+	var rect = mirror.parentElement.childNodes[0];
+	rect.classList.remove("chosen");
 }
 
 d.getRoot = function() {

@@ -27,7 +27,7 @@ DEn = { // Direction Enum
 	S:  180,
 	SW: 225,
 	W:  270,
-	NW: 305,
+	NW: 315,
 	None: NaN
 };
 
@@ -50,44 +50,6 @@ DirectionVectors = {
 	None: {row: 0, col: 0}
 };
 
-function updateState() {
-	g.beam_points = [];
-
-	for(var obj of g.board)
-		if(obj.obj === OEn.Bulb)
-			obj.state = [];
-
-	for(var obj of g.board)
-		if(obj.obj === OEn.Source) {
-		console.log("aaaa");
-			var
-				vec = DirectionVectors[getKeyByValue(DEn, obj.dir)],
-				index = {row: obj.pos.row+vec.row, col: obj.pos.col+vec.col};
-			while(isInBoundries(index)) {
-				var content = getContents(index);
-				if(content !== undefined)
-					switch(content.obj) {
-					case OEn.Bulb:
-						console.log("bulb");
-						content.state.push(obj.col);
-						console.log(content.state);
-						break;
-					case OEn.Mirror:
-						console.log("mirror");
-						break;
-					case OEn.Source:
-						console.log("source");
-						break;
-					default:
-						break;
-					}
-				console.log(index.row, index.col);
-				index.row += vec.row;
-				index.col += vec.col;
-			}
-		}
-}
-
 function isInBoundries(pos) {
 	return (pos.row >= 0 && pos.row < g.m) && (pos.col >= 0 && pos.col < g.n);
 }
@@ -103,29 +65,132 @@ function getContents(pos) {
 	}
 }
 
+function getCurrentAngle(currAngle, mirror) {
+	var angleDiff = currAngle - mirror.dir;
+	switch(angleDiff) {
+	case -135:
+		currAngle += 135;
+		break;
+	case 135:
+		currAngle += 225;
+		break;
+	default:
+		return undefined;
+	}
+	currAngle %= 360;
+	return currAngle;
+}
+
+function getCurrentVector(angle) {
+	return DirectionVectors[getKeyByValue(DEn, angle)];
+}
+
+// FIXME: naming (eg. obj)
+function updateSources(obj) {
+	var
+		currAngle = obj.dir,
+		currVector = getCurrentVector(currAngle),
+		currField = {
+			row: obj.pos.row + currVector.row,
+			col: obj.pos.col + currVector.col
+		};
+	obj.beam_points = [obj.pos];
+
+calculating_beam:
+	while(isInBoundries(currField)) {
+		var fcontent = getContents(currField);
+		if(fcontent !== undefined)
+			switch(fcontent.obj) {
+			case OEn.Bulb:
+				fcontent.state.push(obj.col);
+				break;
+			case OEn.Mirror:
+				obj.beam_points.push(fcontent.pos);
+				currAngle = getCurrentAngle(currAngle, fcontent);
+				if(currAngle === undefined) {
+					currField = undefined;
+					break calculating_beam;
+				}
+				currVector = getCurrentVector(currAngle);
+				break;
+			case OEn.Source:
+				obj.beam_points.push(fcontent.pos);
+				currField = undefined;
+				break calculating_beam;
+			default:
+				throw MyException(
+					fcontent,
+					"Invalid object found on field",
+					"invalid_object"
+				);
+			}
+		console.log(currField.row, currField.col);
+		currField.row += currVector.row;
+		currField.col += currVector.col;
+	}
+	if(currField !== undefined)
+		obj.beam_points.push(currField);
+}
+
+function updateBulbs(obj) {
+	var needed_colors;
+	switch(obj.col) {
+	case CEn.R:
+	case CEn.G:
+	case CEn.B:
+		needed_colors = [obj.col];
+		break;
+	case CEn.Y:
+		needed_colors = [CEn.R, CEn.G];
+		break;
+	case CEn.C:
+		needed_colors = [CEn.G, CEn.B];
+		break;
+	case CEn.M:
+		needed_colors = [CEn.B, CEn.R];
+		break;
+	default:
+		throw MyException(
+			obj,
+			"Invalid color found in the game object.",
+			"invalid_color"
+		);
+	}
+	obj.state = isSubset(needed_colors, obj.state);
+}
+
+function updateState() {
+
+	for(var obj of g.board)
+		if(obj.obj === OEn.Bulb)
+			obj.state = [];
+
+	for(var obj of g.board)
+		if(obj.obj === OEn.Source)
+			updateSources(obj);
+	
+	var won = true;
+	for(var obj of g.board)
+		if(obj.obj === OEn.Bulb) {
+			updateBulbs(obj);
+			if(!obj.state)
+				won = false;
+		}
+
+	if(won)
+		alert("Congratulations! You win!");
+	// TODO: this. Move this to index.html maybe.
+}
+
 
 // PUBLIC
 
-g.newGame = function() {
+g.newGame = function(level) {
 
-	g.n = 8;
-	g.m = 9;
-	g.clipsize = 4;
-
-	g.board = [
-	//   object           color       direction    position
-		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {row: 0, col: 1}},
-		{obj: OEn.Source, col: CEn.G, dir: DEn.SE, pos: {row: 2, col: 0}},
-		{obj: OEn.Source, col: CEn.R, dir: DEn.SE, pos: {row: 4, col: 0}},
-		{obj: OEn.Bulb  , col: CEn.Y,              pos: {row: 4, col: 2}},
-		{obj: OEn.Bulb  , col: CEn.Y,              pos: {row: 2, col: 5}},
-		{obj: OEn.Bulb  , col: CEn.Y,              pos: {row: 4, col: 5}},
-		{obj: OEn.Bulb  , col: CEn.Y,              pos: {row: 6, col: 5}},
-		{obj: OEn.Mirror,             dir: DEn.NW, pos: {row: g.m, col: 0}},
-		{obj: OEn.Mirror,             dir: DEn.SE, pos: {row: g.m, col: 1}},
-		{obj: OEn.Mirror,             dir: DEn.W , pos: {row: g.m, col: 2}},
-		{obj: OEn.Mirror,             dir: DEn.NW, pos: {row: g.m, col: 3}},
-	];
+	g.n = level.n;
+	g.m = level.m;
+	g.clipsize = level.clipsize;
+	g.board = level.board; // FIXME: copy this, not just apply reference
 
 	updateState();
 }

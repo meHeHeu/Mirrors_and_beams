@@ -10,10 +10,13 @@
 <h1>Mirrors and beams</h1>
 <div id="game_root">
 </div>
+
 <script src="drawing.js"></script>
 <script src="game.js"></script>
+<script src="levels.js"></script>
 <script src="input.js"></script>
 <script src="utils.js"></script>
+
 <script>
 window.onload = function() {
 	var settings = {
@@ -22,11 +25,12 @@ window.onload = function() {
 		field_stroke_width: 5
 	};
 
-	game.newGame();
+	game.newGame(levels[1]);
 	draw.init(game, settings);
 	input.init(game, draw);
 }
 </script>
+
 </body>
 
 </html>

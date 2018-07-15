@@ -45,6 +45,30 @@ function numbToColor(numb) {
 }
 
 /**
+ * https://www.sitepoint.com/javascript-generate-lighter-darker-color/
+ * @param col - color to apply luminance to
+ * @param lum - luminance to apply
+ * @return - color after applying luminance
+ */
+function setLumosity(col, lum) {
+	// validate hex string (clean the string and expand 3-digit code
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6)
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	lum = lum || 0;
+
+	// convert to decimal and change luminosity
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
+}
+
+/**
  * @param element - element to create
  * @param remaining_arguments - pairs key-attribute to set
  * @return - element with setup values
@@ -69,6 +93,16 @@ function setAttribs(element) {
 }
 
 /**
+ * https://stackoverflow.com/questions/38811421/check-if-an-array-is-subset-of-another-array
+ * @param arr - subset in question
+ * @param of_arr - superset in question
+ * @return - true if arr is subset of of_arr, false otherwise
+ */
+function isSubset(arr, of_arr) {
+	return arr.every(val => of_arr.includes(val));
+}
+
+/**
  * https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
  * Not tested.
  * @param arr1 - array to compare
@@ -86,4 +120,14 @@ function arraysEqual(arr1, arr2) {
 
 	return true;
 }
+
+/**
+ * @param msg - message
+ * @param what - exception name
+ * @return - object representing an exception
+ */
+ function MyException(data, msg, what) {
+	function toString() {return msg;}
+	return {data, msg, what, toString: toString};
+ }
 
