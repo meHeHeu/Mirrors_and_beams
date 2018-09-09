@@ -6,12 +6,13 @@
 var
 	g,
 	d,
-	start_drag_element;
+	start_drag_element,
+	makeGameOver;
 
 
 // PUBLIC
 
-i.init = function(game, drawing) {
+i.init = function(game, drawing, onGameOver) {
 	g = game;
 	d = drawing;
 
@@ -22,6 +23,8 @@ i.init = function(game, drawing) {
 	for(var mirror of d.mirrors)
 		for(var s of mirror.svg.childNodes)
 			s.setAttribute("onmousedown", "input.svgonmousedown(evt)");
+
+	makeGameOver = onGameOver;
 }
 
 i.lockInterface = function() {
@@ -60,7 +63,7 @@ i.svgonmouseup = function(evt) {
 
 	if(g.state === GSEn.over) {
 		i.lockInterface();
-		d.makeGameOver();
+		makeGameOver();
 	}
 }
 

@@ -39,6 +39,7 @@ GSEn = { // Game State Enum
 Object.freeze(OEn);
 Object.freeze(CEn);
 Object.freeze(DEn);
+Object.freeze(GSEn);
 
 
 // PRIVATE
@@ -90,7 +91,7 @@ function getCurrentVector(angle) {
 	return DirectionVectors[getKeyByValue(DEn, angle)];
 }
 
-function updateSources(source) {
+function updateSource(source) {
 	var
 		currAngle = source.dir,
 		currVector = getCurrentVector(currAngle),
@@ -135,7 +136,7 @@ calculating_beam:
 		source.beam_points.push(currField);
 }
 
-function updateBulbs(bulb) {
+function updateBulb(bulb) {
 	var needed_colors;
 	switch(bulb.col) {
 	case CEn.R:
@@ -164,19 +165,20 @@ function updateBulbs(bulb) {
 
 function updateState() {
 
+	g.state = GSEn.over;
+
 	for(var obj of g.board)
 		if(obj.obj === OEn.Bulb)
 			obj.state = [];
 
 	for(var obj of g.board)
 		if(obj.obj === OEn.Source)
-			updateSources(obj);
+			updateSource(obj);
 	
 	for(var obj of g.board)
 		if(obj.obj === OEn.Bulb) {
-			updateBulbs(obj);
+			updateBulb(obj);
 
-			g.state = GSEn.over;
 			if(!obj.state) // check state of the game
 				g.state = GSEn.live;
 		}
@@ -190,7 +192,7 @@ g.newGame = function(level) {
 	g.n = level.n;
 	g.m = level.m;
 	g.clipsize = level.clipsize;
-	g.board = level.board; // FIXME: copy this, not just apply reference
+	g.board = level.board;
 
 	g.state = GSEn.live;
 

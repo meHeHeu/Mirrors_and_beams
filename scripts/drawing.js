@@ -27,10 +27,18 @@ function set_params(game, settings) {
 	bwidth = getNthSvgPos(g.n);
 	bheight = getNthSvgPos(g.m+1);
 
+	removeAllChildren(settings.root);
 	root = createSVG("svg", settings.root,
 		"width", bwidth,
 		"height", bheight,
 	);
+
+	d.fields = [];
+
+	d.beams = [];
+	d.bulbs = [];
+	d.mirrors = [];
+	d.sources = [];
 }
 
 function createBoard() {
@@ -236,12 +244,6 @@ function createSource(sourceObj) {
 
 // PUBLIC
 
-d.fields = [];
-
-d.beams = [];
-d.bulbs = [];
-d.mirrors = [];
-d.sources = [];
 
 d.init = function(game, settings) {
 	set_params(game, settings);
@@ -274,10 +276,6 @@ d.markChosen = function(mirror) {
 d.unmarkChosen = function(mirror) {
 	var rect = mirror.parentElement.childNodes[0];
 	rect.classList.remove("chosen");
-}
-
-d.makeGameOver = function() {
-	alert("Congratulations! Puzzle solved!");
 }
 
 d.getRoot = function() {

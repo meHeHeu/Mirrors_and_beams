@@ -84,6 +84,15 @@ function createSVG(element, root) {
 }
 
 /**
+ * https://stackoverflow.com/questions/683366/remove-all-the-children-dom-elements-in-div
+ * @param element - element to clear of children
+ */
+function removeAllChildren(element) {
+	while(element.hasChildNodes())
+		element.removeChild(element.lastChild);
+}
+
+/**
  * @param element - element to set up
  * @param remaining_arguments - pairs key-attribute to set
  */
