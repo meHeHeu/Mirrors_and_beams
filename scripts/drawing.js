@@ -18,29 +18,6 @@ function getNthSvgPos(number) {
 	return fstrokew + (fsize + fstrokew) * number;
 }
 
-function set_params(game, settings) {
-	g = game;
-
-	fsize = settings.field_size;
-	fstrokew = settings.field_stroke_width;
-
-	bwidth = getNthSvgPos(g.n);
-	bheight = getNthSvgPos(g.m+1);
-
-	removeAllChildren(settings.root);
-	root = createSVG("svg", settings.root,
-		"width", bwidth,
-		"height", bheight,
-	);
-
-	d.fields = [];
-
-	d.beams = [];
-	d.bulbs = [];
-	d.mirrors = [];
-	d.sources = [];
-}
-
 function createBoard() {
 	for(var i=0; i<g.m; ++i) {
 		d.fields.push([]);
@@ -113,15 +90,15 @@ function createFieldEllipse(root, x, y, width, height, stroke_color, fill_color)
 
 function createBeam(sourceObj) {
 	const
-		STROKE_WIDTH = 5;
+		STROKE_WIDTH = fsize / 10;
 
 	if(sourceObj.beam_points.length < 2)
 		return undefined;
 
 	var beam = createSVG("polyline", root,
 			"points", makePolylinePointList(sourceObj.beam_points),
-			"stroke-width", STROKE_WIDTH, 
 			"stroke", sourceObj.col,
+			"stroke-width", STROKE_WIDTH, 
 			"class", "static"
 	);
 
@@ -245,8 +222,27 @@ function createSource(sourceObj) {
 // PUBLIC
 
 
-d.init = function(game, settings) {
-	set_params(game, settings);
+d.init = function(game, game_root, field_size) {
+	g = game;
+
+	fsize = field_size;
+	fstrokew = fsize / 9;
+
+	bwidth = getNthSvgPos(g.n);
+	bheight = getNthSvgPos(g.m+1);
+
+	removeAllChildren(game_root);
+	root = createSVG("svg", game_root,
+		"width", bwidth,
+		"height", bheight,
+	);
+
+	d.fields = [];
+
+	d.beams = [];
+	d.bulbs = [];
+	d.mirrors = [];
+	d.sources = [];
 
 	createBoard();
 	createClipBoard();

@@ -23,6 +23,17 @@ function $$(selector) {
 }
 
 /**
+ * @params arguments - id strings
+ * @return - dictionary of elements by id strings given as parameters
+ */
+ function buildElementList() {
+	var elementList = {};
+	for(var arg of arguments)
+		elementList[arg] = id$(arg);
+	return elementList;
+ }
+
+/**
  * @param obj - object to search in
  * @param val - value to of searched key
  * @return - key of the value assigned to that key

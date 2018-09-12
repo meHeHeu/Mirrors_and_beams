@@ -24,9 +24,11 @@
 	<div id="options" class="hidden">
 	 <h2>Options</h2>
 	 <label for="level_select">Level</label>
-	 <select id="level_select"><option>1</option><option>2</option></select></br>
+	 <select id="level_select"></select></br>
 	 <label for="fieldSize_inputText">Field size</label>
-	 <input id="fieldSize_inputText" type="text"/>
+	 <input id="fieldSize_inputText" type="text" value="45"
+	        placeholder="20-99"
+	        pattern="^[2-9][0-9]$" required="required"/></br>
 	</div>
 
 	<div id="game_root">
@@ -49,6 +51,9 @@
 	   </textpath>
 	  </text>
 	 </svg>
+	 <!--
+	 <button id="nextLevel_button">Next level</button>
+	 -->
 	</div>
 </div>
 
@@ -59,31 +64,41 @@
 <script src="scripts/utils.js"></script>
 
 <script>
-var
-	odiv    = id$("options"),
-	groot   = id$("game_root"),
-	wbanner = id$("winning_banner"),
-	settings = {
-		field_size : 45,
-		field_stroke_width: 5,
-		root: groot
-	};
+
+const DEFAULT_FIELD_SIZE = 45;
+
+var els = buildElementList(
+	// main elements
+	"game_root", "options", "winning_banner",
+	// buttons
+	"newGame_button", "howToPlay_button", "options_button",
+	"credits_button", "exit_button",
+	// input
+	"fieldSize_inputText", "level_select"
+);
 
 window.onload = function() {
-	id$("newGame_button").onclick   = startNewGame;
-	id$("howToPlay_button").onclick = function(){openNewTab("howto.html")};
-	id$("credits_button").onclick   = function(){openNewTab("credits.html")};
+	els.newGame_button  .onclick = startNewGame;
+	els.howToPlay_button.onclick = function(){openNewTab("howto.html")};
+	els.credits_button  .onclick = function(){openNewTab("credits.html")};
 
-	id$("options_button").onclick = function() {
-		removeAllChildren(groot);
-		odiv.classList.remove("hidden");
+	els.options_button.onclick = function() {
+		removeAllChildren(els.game_root);
+		els.options.classList.remove("hidden");
 	}
 
-	id$("exit_button").onclick = function(){
-		removeAllChildren(groot);
-		odiv.classList.add("hidden");
-		wbanner.style.visibility = "hidden";
+	els.exit_button.onclick = function(){
+		removeAllChildren(els.game_root);
+		els.options.classList.add("hidden");
+		els.winning_banner.style.visibility = "hidden";
 	}
+
+	var optionList = els.level_select.options;
+	levels.names.forEach(level_name =>
+		optionList.add(new Option(level_name, level_name))
+	);
+
+	validate_fieldSize_inputText();
 }
 
 function openNewTab(url) {
@@ -92,17 +107,54 @@ function openNewTab(url) {
 }
 
 function onGameOver() {
-	wbanner.style.visibility = "visible";
+	els.winning_banner.style.visibility = "visible";
+}
+
+function validate_fieldSize_inputText() {
+	if(!els.fieldSize_inputText.checkValidity())
+		els.fieldSize_inputText.value = DEFAULT_FIELD_SIZE.toString();
 }
 
 function startNewGame() {
-	wbanner.style.visibility = "hidden";
-	odiv.classList.add("hidden");
 
-	game.newGame(levels.getLevel("testc"));
-	draw.init(game, settings);
+	validate_fieldSize_inputText();
+
+	els.winning_banner.style.visibility = "hidden";
+	els.options.classList.add("hidden");
+
+	var selected_lvl;
+	selected_lvl = els.level_select.selectedIndex;
+	selected_lvl = els.level_select.options[selected_lvl].value;
+	selected_lvl = levels.getLevel(selected_lvl);
+	game.newGame(selected_lvl);
+
+	draw.init(
+		game,
+		els.game_root,
+		parseInt(els.fieldSize_inputText.value)
+	);
+
 	input.init(game, draw, onGameOver);
 }
+
+/*
+function startNextGame() {
+	validate_fieldSize_inputText();
+
+	els.winning_banner.style.visibility = "hidden";
+	els.options.classList.add("hidden");
+
+	game.newGame(game.nextLevelName);
+
+	draw.init(
+		game,
+		els.game_root,
+		parseInt(els.fieldSize_inputText.value)
+	);
+
+	input.init(game, draw, onGameOver);
+}
+*/
 </script>
 
 </body>

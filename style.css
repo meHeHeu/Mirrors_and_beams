@@ -21,6 +21,7 @@ h1 {
 .yellow {color: #FFFF00;}
 
 .hidden {
+	position: absolute;
 	visibility: hidden;
 }
 
@@ -150,12 +151,30 @@ h1 {
 	background: #7A0000;
 }
 
+/* Options */
+
+#options {
+	width: 300px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 100px;
+	z-index: 100;
+	font-family: shadows into light;
+}
+#options label {
+	display: block;
+	width: 150px;
+	font-size: 1.5em;
+}
+#options input, #options select {width: 150px;}
+
 /* Winning banner */
 
 #winning_banner {
 	display: block;
-	border: 3px solid #eee;
-	margin: 1em auto;
+	width: 500px;
+	/* border: 3px solid #eee; */
+	margin: auto;
 	visibility: hidden;
 }
 #winning_banner text {
@@ -201,7 +220,6 @@ h1 {
 }
 #game_root svg polyline {
 	fill: none;
-	stroke-width: 4;
 	stroke-dasharray: 1000;
 	stroke-dashoffset: 1000;
 	-webkit-animation: dash 2.5s linear forwards;
@@ -212,5 +230,16 @@ h1 {
 }
 @keyframes dash {
 	to {stroke-dashoffset: 0;}
+}
+
+/* Description */
+
+#content section {
+	width: 500px;
+	margin: auto;
+}
+#content section img {
+	position: relative;
+	top: 20px;
 }
 

@@ -73,6 +73,9 @@ board: [
 
 // PUBLIC
 
+l.names = Object.keys(levels);
+Object.freeze(l.names);
+
 l.getLevel = function(name) {
 	var
 		level = levels[name],
