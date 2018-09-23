@@ -1,5 +1,7 @@
 # Mirrors and beams
 
+__WARNING__: Readme is not up-to-date!
+
 ## game.js
 
 Provides module __game__.
